@@ -29,7 +29,7 @@ const registerUser = async (req, res)=>{
     
             await user.save();
     
-            const token = createToken(user._id);
+            const token = createToken(user);
     
             return res.status(200).json({message:"User successfully registered.", data: {_id:user._id, name, email, token}});
         }
@@ -56,9 +56,9 @@ const loginUser = async(req, res)=>{
 
         if(!isValidPassword) return res.status(400).json({message: "Invalid credentials."});
 
-        const token = createToken(user._id);
+        const token = createToken(user);
     
-        return res.status(200).json({message:"User successfully registered.", data: {_id:user._id, name:user.name, email, token}});
+        return res.status(200).json({message:"User successfully logged in.", data: {_id:user._id, name:user.name, email, token}});
 
     } catch (error) {
         console.log(error);
@@ -90,10 +90,10 @@ const findUser = async(req, res)=>{
 };
 
 
-const createToken = (_id)=>{
+const createToken = (user)=>{
     const jwtKey = process.env.JWT_SECRET;
 
-    return jwt.sign({_id}, jwtKey, {expiresIn:"3d"});
+    return jwt.sign({id:user._id, name: user.name}, jwtKey, {expiresIn:"3d"});
 };
 
 module.exports = { registerUser, loginUser, findUser };

@@ -4,6 +4,9 @@ const app = express();
 const cors = require('cors');
 const mongoose = require('mongoose');
 const userRoute = require('./routes/user.route');
+const chatRoute = require('./routes/chat.route');
+const messageRoute = require('./routes/message.route');
+
 
 require('dotenv').config();
 
@@ -16,6 +19,8 @@ app.use(cors());
 
 
 app.use('/api/users',userRoute);
+app.use('/api/chats', chatRoute);
+app.use('/api/messages', messageRoute);
 
 
 app.listen(port, (req, res)=>{
