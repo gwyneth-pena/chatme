@@ -5,6 +5,8 @@ import { NavLink } from 'react-router-dom';
 import './Navbar.css';
 import { useContext } from 'react';
 import { AuthContext } from '../utils/AuthContext';
+import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
 
 const  NavBar= () => {
 
@@ -16,6 +18,11 @@ const  NavBar= () => {
           <Navbar.Brand href="/">Chat Me</Navbar.Brand>
           <Navbar.Toggle aria-controls="responsive-navbar-nav" />
           <Navbar.Collapse id="responsive-navbar-nav">
+            <Row className='mx-auto w-100 my-auto'>
+              <Col>
+                {user && <p className='text-center'>Logged in as <strong>{user?.name?.toUpperCase()}</strong></p>}
+              </Col>
+            </Row>
             <Nav className='ms-auto'>
               {
                 user ? <>

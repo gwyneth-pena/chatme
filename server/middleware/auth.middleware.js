@@ -13,7 +13,7 @@ const verifyToken = (req,res,next)=>{
             jwt.verify(token, jwtKey);
             next();
         }catch(err){
-            return res.status(401).json({"message":"Invalid token"});
+            return res.status(401).json({"message":"Invalid token."});
         }
 
     }else{

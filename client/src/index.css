@@ -9,3 +9,54 @@ body {
 
 }
 
+.messages-box{
+  height: 85vh;
+}
+
+.chat-preview{
+  border-bottom: 2px solid gray;
+}
+
+.chat-preview .name{
+  font-weight: bold;
+}
+
+.chat-preview .date{
+  font-size: small;
+}
+
+.chat-preview [name-initials]::before{
+  content:attr(name-initials);
+  display:inline-block;
+  font-size:1em;
+  width:2.5em;
+  height:2.5em;
+  line-height:2.5em;
+  text-align:center;
+  border-radius:50%;
+  background:rgb(223, 129, 244);
+  vertical-align:middle;
+  margin-right:1em;
+  color:white;
+}
+
+.chat-preview .unread{
+  background: gray;
+  color:  white;
+  padding: 0 2px;
+  font-weight: bold;
+  border-radius: 8px;
+}
+
+.chat-preview .online{
+  color: green;
+}
+
+.chat-box{
+  background:rgb(239, 238, 238) !important;
+  padding: 15px;
+}
+
+.chat-header{
+  text-align: center;
+}
