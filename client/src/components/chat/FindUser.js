@@ -15,8 +15,8 @@ export const FindUser = ({data}) => {
     const {user} = useContext(AuthContext);
     const chatsRendered = useRef([]);
     const usersRendered = useRef([]);
-    usersRendered.current = users;
-    chatsRendered.current = chats;
+    usersRendered.current = users || [];
+    chatsRendered.current = chats || [];
 
     const createChat = useCallback(({item})=>{
     
@@ -29,22 +29,24 @@ export const FindUser = ({data}) => {
                 Authorization:  `Bearer ${localStorage.getItem('token')}`
             }
         }).then(response=>{
-            if(chats.length>0){chatsRendered.current.push(response.data)}
-            else{chatsRendered.current = response.data;}
-
-            let chatsSum = [];
-            chatsRendered.current.forEach(item => {
-                chatsSum.push(item.members[0])
-                chatsSum.push(item.members[1])
-            });
-
-            usersRendered.current = usersRendered.current.filter(usr=>{
-                return usr._id!==user.id && !chatsSum.includes(usr._id);
-            });
-
-            updateCurrentChat(response.data);
-            updateChats(chatsRendered.current);
-            updateUsers(usersRendered.current);
+            if(response){
+                chatsRendered.current.push(response.data);
+                if(chatsRendered.current){
+                    let chatsSum = [];
+                    chatsRendered?.current?.forEach(item => {
+                        chatsSum.push(item.members[0])
+                        chatsSum.push(item.members[1])
+                    });
+        
+                    usersRendered.current = usersRendered.current.filter(usr=>{
+                        return usr._id!==user.id && !chatsSum.includes(usr._id);
+                    });
+        
+                    updateCurrentChat(response.data);
+                    updateChats(chatsRendered.current);
+                    updateUsers(usersRendered.current);
+                }
+            }
         }); 
     },[]);
 

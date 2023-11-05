@@ -20,7 +20,9 @@ export const useFetchRecipient = (chat, user)=>{
                 headers: {
                     Authorization:  `Bearer ${localStorage.getItem('token')}`
             }}).then(response=>{
-                setRecipient(response.data.data);
+                let resRecipient = response.data.data;
+                resRecipient.isOnline = chat.isOnline;
+                setRecipient(resRecipient);
             }).catch(error=>{
                 setError(error.response.data.message);
             })

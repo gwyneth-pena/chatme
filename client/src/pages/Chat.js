@@ -14,11 +14,23 @@ function Chat(){
     const apiBaseUrl = process.env.NODE_ENV.toLowerCase() === 'development' ?  
     process.env.REACT_APP_API_BASE_URL_DEV: process.env.REACT_APP_API_BASE_PROD;
 
-    const {chats, updateChats, users, updateUsers, currentChat, updateCurrentChat, messages, updateMessages} = useContext(ChatContext);
+    const {chats, 
+           updateChats, 
+           users, 
+           updateUsers, 
+           updateAllUsers, 
+           currentChat, 
+           notifications,
+           onlineUsers,
+           updateCurrentChat,
+           allUsers,
+           allMessages,
+           updateMessages} = useContext(ChatContext);
     const {user} = useContext(AuthContext);
     const [chatLoading, setChatLoading] = useState(true);
     const [chatError, setChatError] = useState(null);
     const [messageError, setMessageError] = useState(null);
+    const [sortedAllMessages, setSortedAllMessages] = useState([]);
 
     useEffect(()=>{
 
@@ -29,23 +41,23 @@ function Chat(){
         }).then(response=>{
             let chatsReceived = response.data;
             setChatLoading(false);
-            updateChats(chatsReceived);
-
+            getChatsWithStatus(chatsReceived);
             
             axios.get(`${apiBaseUrl}/users`, {
                 headers: {
                     Authorization:  `Bearer ${localStorage.getItem('token')}`
                 }
             }).then(response=>{
-                let chats = [];
+                let chatsArr = [];
                 chatsReceived.forEach(item => {
-                    chats.push(item.members[0])
-                    chats.push(item.members[1])
+                    chatsArr.push(item.members[0])
+                    chatsArr.push(item.members[1])
                 });
                 let users = response.data.data.user.filter(usr=>{
-                    return usr._id!==user.id && !chats.includes(usr._id);
+                    return usr._id!==user.id && !chatsArr.includes(usr._id);
                 });
                 updateUsers(users);
+                updateAllUsers(response.data.data.user);
             }).catch(error=>{
                 setChatError(error.response.data.message);
             });
@@ -58,7 +70,8 @@ function Chat(){
     },[]);
 
     useEffect(()=>{
-    },[chats,users])
+        getChatsWithStatus(chats);
+    },[onlineUsers, users])
 
     useEffect(()=>{
         axios.get(`${apiBaseUrl}/messages/${currentChat?._id}`,{
@@ -72,24 +85,47 @@ function Chat(){
         });
     },[currentChat])
 
+    
+    useEffect(()=>{
+        let sortedByDate = allMessages.map(item=>{
+            item = item.sort((a,b)=>{
+                return new Date(b.createdAt) - new Date(a.createdAt);
+            });
+            return item;
+        });
+        setSortedAllMessages(sortedByDate);
+    },[allMessages])
+
+    const getChatsWithStatus = (chats)=>{
+        let updatedChats = chats;
+        updatedChats = updatedChats.map(chat=>{
+            let receiver = chat?.members?.find(i=>i!==user?.id);
+            return {
+                ...chat, 
+                isOnline: onlineUsers?.some(onlineUser=>onlineUser.id===receiver)
+            };
+        });
+        updateChats(updatedChats);
+    }
+
     return (
         <>
             <NavBar></NavBar>
             <Container className="my-4">
                 <Stack direction="horizontal" gap={4} className="align-items-start">
-                        {
-                        chats?.length>0 && 
-                        <Stack className="messages-box flex-grow-0" gap={3}>
+
+                    <Stack className="messages-box flex-grow-0" gap={3}>
                         <FindUser data={users}/>
-                        {chatLoading && <p>Loading...</p>}
-                        {chatError && <p>Oops there's an error. Try again later.</p>}
-                        { chats?.map((item,index)=>{
-                            return <div key={index} onClick={()=>{updateCurrentChat(item);}}>
-                                <UserChat chat={item} user={user}/>
-                            </div>
-                        }) }
+                        <Stack style={{maxHeight:"90vh", minHeight:'40vh', overflowY:"scroll"}}>
+                            {chatLoading && <p>Loading...</p>}
+                            {chatError && <p>Oops there's an error. Try again later.</p>}
+                            {chats?.length>0 &&  chats.map((item,index)=>{
+                                return <div key={index} onClick={()=>{updateCurrentChat(item);}}>
+                                    <UserChat chat={item} user={user} sortedAllMessages={sortedAllMessages}/>
+                                </div>
+                            }) }
+                        </Stack>
                     </Stack>
-                    }
                     <ChatBox/>
                 </Stack>
             </Container>

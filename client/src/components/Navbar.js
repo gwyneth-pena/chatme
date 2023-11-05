@@ -7,6 +7,7 @@ import { useContext } from 'react';
 import { AuthContext } from '../utils/AuthContext';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
+import Notifications from './chat/Notifcations';
 
 const  NavBar= () => {
 
@@ -26,6 +27,7 @@ const  NavBar= () => {
             <Nav className='ms-auto'>
               {
                 user ? <>
+                  <Notifications/>
                   <NavLink activeclassname='active' className="link" onClick={(()=>logoutUser())} to="/login">
                       Logout
                   </NavLink>

@@ -8,6 +8,7 @@ import { FerrisWheelSpinnerOverlay } from 'react-spinner-overlay';
 import { AuthContext } from "../utils/AuthContext";
 import jwt_decode from "jwt-decode";
 import NavBar from "../components/Navbar";
+import { ChatContext } from "../utils/ChatContext";
 
 
 function Register(){
@@ -26,6 +27,7 @@ function Register(){
     const closeToast = ()=>{setToast({show:false, message:'', bg:'default'})};
 
     const {updateUser} = useContext(AuthContext);
+    const {updateCurrentChat} = useContext(ChatContext);
 
     const onSubmit = async (data)=>{
         setLoading(true);
@@ -33,18 +35,17 @@ function Register(){
         .then(responseReg=>{
 
             setLoading(false);
+            const {id, name} = jwt_decode(responseReg.data.data.token);
             localStorage.setItem('token', responseReg.data.data.token);
             setToast({show:true, message:responseReg.data.message, bg:'success'});
-
-            const {id, name} = jwt_decode(responseReg.data.data.token);
             updateUser({id, name});
-
+            updateCurrentChat(null);
             reset();
 
         })
         .catch(err=>{
             setLoading(false);
-            setToast({show:true, message:err.response.data.message, bg:'danger'});
+            setToast({show:true, message:err.response?.data?.message, bg:'danger'});
         });
         
     };
